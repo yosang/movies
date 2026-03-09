@@ -29,8 +29,6 @@ builder.Services.AddSwaggerGen(options =>
     options.IncludeXmlComments(xmlPath);
 });
 
-Console.WriteLine(AppContext.BaseDirectory);
-
 var app = builder.Build();
 
 app.UseSwagger();

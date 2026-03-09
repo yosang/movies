@@ -20,6 +20,10 @@
 - [Handling Migrations](#handling-migrations)
 - [Swagger Documentation](#swagger-documentation)
     - [OpenAPI Documentation](#openapi-documentation)
+    - [Adding comments](#adding-comments)
+    - [Return types](#return-types)
+    - [Remarks](#remarks)
+    - [Response codes](#response-codes)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -245,6 +249,53 @@ builder.Services.AddSwaggerGen(options =>
 });
 ```
 
+## Adding comments
+To add a comment we simply initiate with `///` and fill out.
+
+```c#
+    /// <summary>
+    /// Gets a list of movies
+    /// </summary>
+    /// <returns>List of movies</returns>
+```
+Now we can see that SwaggerUI updates perfectly.
+
+![alt text](image.png)
+
+Each time the application builds, a new `.xml` is generated and brought into `Swagger`.
+
+## Return types
+To allow Swagger to show proper return types we can configure the `[ProducesResponseType]` attribute for each endpoint.
+
+This allows Swagger to pull the response types and show them on the `SwaggerUI`.
+
+We can pass the type of the entity we are returning, and the status code.
+
+```c#
+[ProducesResponseType(typeof(Movie), StatusCodes.Status200OK)]
+[ProducesResponseType(StatusCodes.Status404NotFound)]
+```
+
+## Remarks
+Adds some nice little examples to the Swagger documentation
+
+```c#
+    /// <remarks>
+    /// Sample:
+    /// {
+    ///     "id": 1,
+    ///     "Name": Titanic
+    /// }
+    /// </remarks>
+```
+
+## Response codes
+Adds some context to the different response codes
+
+```c#
+    /// <response code="200">Returns a single movie</response>
+    /// <response code="404">If no movie with the specified id was found</response>
+```
 # Technologies
 - .NET 9
 - Microsoft.EntityFrameworkCore
