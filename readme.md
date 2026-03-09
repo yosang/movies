@@ -1,4 +1,5 @@
 - [Project](#project)
+    - [Resources](#project)
 - [Template](#template)
 - [Concepts](#concepts)
   - [Designing a controller](#designing-a-controller)
@@ -24,8 +25,11 @@
 # Project
 In this little project we are implementing a ASP.NET Core Web Api with Controllers and connecting it to a minimalistic MySQL database to perform simple CRUD operations.
 
-[Resource 1](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-10.0)
-[Resource 2](https://learn.microsoft.com/en-us/aspnet/core/web-api/action-return-types?view=aspnetcore-10.0)
+## Resources
+- [Basics](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-10.0)
+- [Return types](https://learn.microsoft.com/en-us/aspnet/core/web-api/action-return-types?view=aspnetcore-10.0)
+- [AddDbContext](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontextoptions)
+- [Dependency Inject](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontext-in-dependency-injection-for-aspnet-core)
 
 # Template
 The template use for this project is `dotnet new web`, which is a total empty template, we are building this from scratch.
