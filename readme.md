@@ -167,6 +167,9 @@ The documentation for Dependency Inject is AspNetCore can be found [here](https:
 - Swashbucke.AspNetCore
 
 # Usage
+- Clone the repo.
+- Run it with `dotnet run`.
+- Visit `/swagger` for the available endpoints. 
 
 # Author
 [Yosmel Chiang](https://github.com/yosang)
