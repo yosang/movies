@@ -1,5 +1,5 @@
 - [Project](#project)
-    - [Resources](#project)
+  - [Resources](#resources)
 - [Template](#template)
 - [Concepts](#concepts)
   - [Designing a controller](#designing-a-controller)
@@ -15,15 +15,18 @@
   - [Adding Controller service](#adding-controller-service)
 - [appsettings.json](#appsettingsjson)
 - [Dependency Injection (injecting DbContext to the api)](#dependency-injection-injecting-dbcontext-to-the-api)
-  - [Contructor](#contructor)
+  - [Constructor](#constructor)
   - [AddDbContext](#adddbcontext)
+- [Dependency Injection (injecting DbContext to the controllers)](#dependency-injection-injecting-dbcontext-to-the-controllers)
+  - [Manual dependency injection](#manual-dependency-injection)
 - [Handling Migrations](#handling-migrations)
 - [Swagger Documentation](#swagger-documentation)
-    - [OpenAPI Documentation](#openapi-documentation)
-    - [Adding comments](#adding-comments)
-    - [Return types](#return-types)
-    - [Remarks](#remarks)
-    - [Response codes](#response-codes)
+  - [OpenAPI documentation](#openapi-documentation)
+  - [XML Documentation](#xml-documentation)
+  - [Adding comments](#adding-comments)
+  - [Return types](#return-types-1)
+  - [Remarks](#remarks)
+  - [Response codes](#response-codes)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -36,21 +39,23 @@ In this little project we are implementing a ASP.NET Core Web Api with Controlle
 - [Return types](https://learn.microsoft.com/en-us/aspnet/core/web-api/action-return-types?view=aspnetcore-10.0)
 - [AddDbContext](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontextoptions)
 - [Dependency Inject](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontext-in-dependency-injection-for-aspnet-core)
+- [Dependency Injection Controllers](https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-9.0https://learn.microsoft.com/en-us/aspnet/core/mvc/controllers/dependency-injection?view=aspnetcore-9.0)
 
 # Template
-The template use for this project is `dotnet new web`, which is a total empty template, we are building this from scratch.
+The template used for this project is `dotnet new web`, which is a total empty template, we are building this from scratch.
 
 # Concepts
 - Designing API's with controllers
 - appsettings.json (for connection string configuration)
 - Dependency Injection (injecting DbContext to the api)
+- Dependency Injection (injecting the controller with DbContext)
 - Migrations
-- Swagger documenetation
+- Swagger documentation
 
 ## Designing a controller
 
 ### ControllerBase class
-To get started with controllers we simply need to import the namespace `Microsoft.AspNetCore.Mvc`, in here we get access to `ControllersBase`, which is the base class we use to define a class as a Controller class.
+To get started with controllers we simply need to import the namespace `Microsoft.AspNetCore.Mvc`, in here we get access to `ControllerBase`, which is the base class we use to define a class as a Controller class.
 
 ### ApiController attribute
 Once we got a class that inherits from `ControllerBase`, we can simply add the attribute `[ApiController]` to it, this class is now a controller.
@@ -60,7 +65,7 @@ The simplest approach is to add a `[Route("[controller]")]` attribute to the cla
 
 For example in my case I got `MoviesController.cs` as the file name, the route endpoint will then be `/movies` thanks to this attribute.
 
-If we wwant to specify the route, we can also do so, for example `[Route("api/movies")]`, or `[Route("api/[controller]")]`.
+If we want to specify the route, we can also do so, for example `[Route("api/movies")]`, or `[Route("api/[controller]")]`.
 
 ### HTTP Methods
 To enable a HTTP verb to a method we simply use the attributes `[HttpGet]`, `[HttpPost]` etc.
@@ -123,7 +128,7 @@ Its a flexible interface contract, that allows us to return multiple types of da
 ```
 
 #### Async/Await
-When working with async work, like databases, we want to to make this method `async` with `Task`.
+When working with async work, like databases, we want to make this method `async` with `Task`.
 
 ## Adding Controller service
 Once a controller has been setting up and we want to add it to our application, we simply put the following in `Program.cs`.
@@ -135,47 +140,102 @@ builder.Services.AddControllers()
 
 After `app.build`
 ```c#
-app.MapControllerS();
+app.MapControllers();
 ```
 
 # appsettings.json
 `appsettings.json` is a configuration file that stores key-value pairs. It allows us to avoid hardcoding, and we can exclude this file entirely from our version control system through `.gitignore`.
 
 # Dependency Injection (injecting DbContext to the api)
-Instead of hardcoding the connection string in the `DbContext` class by overriding the `OnConfiguring` method like I have done earlier, we are going to implement `Dependency Injection`.
+Instead of hardcoding the connection string in the `DbContext` class by overriding the `OnConfiguring` method like I have done earlier, we are going to implement `Dependency Injection` to provide the database context to our API and controllers.
 
-## Contructor
-First we need to define the context class with a constructor that takes `DbContextoptions<>` parameter, this parameter carries all configurations set through `Dependency Injection` with the `AddDbContext` method. The documentation for this parameter is found [here](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontextoptions).
+## Constructor
+Since we are no longer hardcoding the connection string, we need to pass the configuration to our `DbContext` class somehow.
+
+We do this by defining a constructor that takes `DbContextOptions<T>` parameter, this parameter carries all configurations set through `Dependency Injection` with the `AddDbContext` method. The documentation for this parameter is found [here](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontextoptions).
 
 ```c#
-public MoviesContext(DbContextOptions<MoviesContext> options) : base(options) { }
+public class MoviesContext : DbContext
+{
+    public DbSet<Movie> Movies { get; set; }
+
+    public MoviesContext(DbContextOptions<MoviesContext> options) : base(options) { }
+}
 ```
 
+This allows **ASP.NET Core DI** to fully configure and provide the context.
+
 ## AddDbContext
-Instead of adding configurations to instances of this class by overriding `OnConfiguring`, we add configurations to `DbContextOptions` through `AddDbContext` instead as its specifically designed for `Dependency Injection`.
+Instead of adding configurations to instances of this class by overriding `OnConfiguring`, we add configurations to `DbContextOptions` through `AddDbContext` as its specifically designed for `Dependency Injection`.
+
+This:
+- Builds the `DbContextOptions` with the connection string.
+- Registers `MoviesContext` in DI as Scoped by default (one instance per HTTP request)
 
 ```c#
-// Gets the connection string from appsettings.json or throws an exception
 var conString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string is not defined");
 
-// Injects the connection string to the DbContext class here
 builder.Services.AddDbContext<MoviesContext>(options => options.UseMySQL(conString));
 ```
 
-We can clearly see here that we are using `AddDbContext` with our specific `Context` class dervied from `DbContext`.
+Now, any controller that asks for `MoviesContext` in its constructor will get a new instance per request, which is safe and recommended.
 
 The documentation for Dependency Inject is AspNetCore can be found [here](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontext-in-dependency-injection-for-aspnet-core).
 
+# Dependency Injection (injecting DbContext to the controllers)
+Once we have injected the `DbContext`, we simply need to make a constructor for each controllers that allow access to the `Context`.
+
+```c#
+private readonly MoviesContext _ctx; // Repository for the DbContext
+
+public MoviesController(MoviesContext context) => _ctx = context; // context is requested here, the DI container delivers
+```
+
+Here we are simply populating our property with the context retrieved from the DI container.
+
+What happens under the hood:
+- ASP.NET Core sees that `MoviesController` needs `MoviesContext`.
+- The DI container looks up `MoviesContext` registration.
+- It creates a `scoped instance` for this request and injects it.
+- Once the HTTP request ends, the context is disposed automatically.
+
+## Manual dependency injection
+We can also configure this manually:
+
+```c#
+var optionsBuilder = new DbContextOptionsBuilder<MoviesContext>();
+optionsBuilder.UseMySQL(conString);
+var context = new MoviesContext(optionsBuilder.Options);
+
+builder.Services.AddControllers().AddControllersAsServices(); // Allows controllers as services to be resolved from DI
+builder.Services.AddSingleton(context);
+```
+
+- Here we manually built the options and created the context.
+- `AddControllersAsServices` - Allows registration and injection of services to controllers using a constructor.
+- `AddSingleton` - Adds the context of the database class to the DI container and registers one instance shared across all requests, which can cause concurrency issues.
+- `Controllers` get `MoviesContext` via constructor injection automatically once registered.
+
+Instead of doing it this way, we can use `AddDbContext` instead of the code above.
+
+```c#
+builder.Services.AddDbContext<MoviesContext>(options => options.UseMySQL(conString));
+```
+
+`AddDbContext` does two things:
+- Builds `DbContextOptions` with the connection string
+- Adds `MoviesContext` to the DI container as **Scoped by default** (one instance per HTTP request)
+
 # Handling Migrations
 - `dotnet ef migrations add InitialSeed` - Creates a new migration
-- `dotnet ef migrations remove` - Removes a previous migration (Migrations work in last-in-first-out (LIFO) style, so only the last one can be removed after a rollback and so on)
+- `dotnet ef migrations remove` - Removes a previous migration (Migrations are applied in order and can only be removed from the top (last-in-first-out).)
 - `dotnet ef migrations list` - List all current migrations
 - `dotnet database update` - Uploads the migration changes to the database
 - `dotnet ef database update 0` - Rolls back the migration to start, we can also specify a migrationname to rollback to instead.
 - `dotnet database drop` - Deletes the entire database and all its tables ( full reset )
 
 # Swagger Documentation
-As we are using Swagger to documentate our API, there with the `Swashbuckle.AspNetCore` package.
+As we are using Swagger to document our API, there with the `Swashbuckle.AspNetCore` package.
 - `Swagger` - Gives us a set of tools to configure and define the API documentation.
     - To use it we can add `builder.Services.AddSwaggerGen()` and`app.UseSwagger()` to `Program.cs`.
         - `SwaggerGen()` will automatically bring in the controller endpoints to swagger.
@@ -183,7 +243,8 @@ As we are using Swagger to documentate our API, there with the `Swashbuckle.AspN
     - To use it we can add `app.UseSwaggerUI()` to `Program.cs`.
 
 ## OpenAPI documentation
-OpenAPI is already built in the `AspNetCore` package, so we dont need to add anything extra.
+OpenAPI is already built in `AspNetCore`, so we dont need to add anything extra.
+
 
 However to further configure our Swagger documentation we can use the `OpenApiInfo` class to give our `SwaggerUI` some context.
 
@@ -299,8 +360,8 @@ Adds some context to the different response codes
 # Technologies
 - .NET 9
 - Microsoft.EntityFrameworkCore
-- Microsoft.EntityFramewworkCore.Design
-- Swashbucke.AspNetCore
+- Microsoft.EntityFrameworkCore.Design
+- Swashbuckle.AspNetCore
 
 # Usage
 - Clone the repo.
