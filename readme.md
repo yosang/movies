@@ -1,3 +1,26 @@
+- [Project](#project)
+- [Template](#template)
+- [Concepts](#concepts)
+  - [Designing a controller](#designing-a-controller)
+    - [ControllerBase class](#controllerbase-class)
+    - [ApiController attribute](#apicontroller-attribute)
+    - [Route attribute](#route-attribute)
+    - [HTTP Methods](#http-methods)
+    - [Return types](#return-types)
+      - [Primitive data type](#primitive-data-type)
+      - [ActionResult<T>](#actionresult)
+      - [IActionResult](#iactionresult)
+      - [Async/Await](#asyncawait)
+  - [Adding Controller service](#adding-controller-service)
+- [appsettings.json](#appsettingsjson)
+- [Dependency Injection (injecting DbContext to the api)](#dependency-injection-injecting-dbcontext-to-the-api)
+  - [Contructor](#contructor)
+  - [AddDbContext](#adddbcontext)
+- [Handling Migrations](#handling-migrations)
+- [Technologies](#technologies)
+- [Usage](#usage)
+- [Author](#author)
+
 # Project
 In this little project we are implementing a ASP.NET Core Web Api with Controllers and connecting it to a minimalistic MySQL database to perform simple CRUD operations.
 
@@ -90,7 +113,6 @@ Its a flexible interface contract, that allows us to return multiple types of da
 
 #### Async/Await
 When working with async work, like databases, we want to to make this method `async` with `Task`.
-<>
 
 ## Adding Controller service
 Once a controller has been setting up and we want to add it to our application, we simply put the following in `Program.cs`.
@@ -106,8 +128,37 @@ app.MapControllerS();
 ```
 
 # appsettings.json
-- Dependency Injection (injecting DbContext to the api)
-- Migrations
+`appsettings.json` is a configuration file that stores key-value pairs. It allows us to avoid hardcoding, and we can exclude this file entirely from our version control system through `.gitignore`.
+
+# Dependency Injection (injecting DbContext to the api)
+Instead of hardcoding the connection string in the `DbContext` class by overriding the `OnConfiguring` method like I have done earlier, we are going to implement `Dependency Injection`.
+
+## Contructor
+First we need to define the context class with a constructor that takes `DbContextoptions<>` parameter, this parameter carries all configurations set through `Dependency Injection` with the `AddDbContext` method. The documentation for this parameter is found [here](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontextoptions).
+
+```c#
+public MoviesContext(DbContextOptions<MoviesContext> options) : base(options) { }
+```
+
+## AddDbContext
+Instead of adding configurations to instances of this class by overriding `OnConfiguring`, we add configurations to `DbContextOptions` through `AddDbContext` instead as its specifically designed for `Dependency Injection`.
+
+```c#
+// Gets the connection string from appsettings.json or throws an exception
+var conString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string is not defined");
+
+// Injects the connection string to the DbContext class here
+builder.Services.AddDbContext<MoviesContext>(options => options.UseMySQL(conString));
+```
+
+We can clearly see here that we are using `AddDbContext` with our specific `Context` class dervied from `DbContext`.
+
+The documentation for Dependency Inject is AspNetCore can be found [here](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontext-in-dependency-injection-for-aspnet-core).
+
+# Handling Migrations
+- `dotnet ef migrations add InitialSeed` - Creates a new migration
+- `dotnet database update` - Uploads the migration changes to the database
+- `dotnet database drop` - Deletes the entire database and all its tables
 
 # Technologies
 - .NET 9

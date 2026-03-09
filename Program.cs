@@ -10,12 +10,14 @@ var conString = builder.Configuration.GetConnectionString("Default") ?? throw ne
 builder.Services.AddDbContext<MoviesContext>(options => options.UseMySQL(conString));
 
 builder.Services.AddControllers(); // Imports the controllers
-// builder.Services.AddSwaggerGen(); // Auto generates routes from controllers
+builder.Services.AddSwaggerGen(); // Auto generates routes from controllers
 
 var app = builder.Build();
 
-app.MapGet("/", () => "Hello world");
+app.UseSwagger();
+app.UseSwaggerUI();
 
+app.MapGet("/", () => "Hello world");
 app.MapControllers();
 
 app.Run();

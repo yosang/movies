@@ -1,7 +1,7 @@
-namespace movies.Movies;
+namespace movies.Models;
 
 public class Movie
 {
     public int Id { get; set; }
-    public string Name { get; set; } = string.Empty;
+    public string Name { get; set; } = null!;
 }
