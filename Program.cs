@@ -6,7 +6,7 @@ var builder = WebApplication.CreateBuilder();
 // Gets the connection string or throws an exception
 var conString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string is not defined");
 
-// Injects the connection string to the DbContext class here
+// Dependency Injection of Database Context
 builder.Services.AddDbContext<MoviesContext>(options => options.UseMySQL(conString));
 
 builder.Services.AddControllers(); // Imports the controllers

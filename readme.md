@@ -161,8 +161,11 @@ The documentation for Dependency Inject is AspNetCore can be found [here](https:
 
 # Handling Migrations
 - `dotnet ef migrations add InitialSeed` - Creates a new migration
+- `dotnet ef migrations remove` - Removes a previous migration (Migrations work in last-in-first-out (LIFO) style, so only the last one can be removed after a rollback and so on)
+- `dotnet ef migrations list` - List all current migrations
 - `dotnet database update` - Uploads the migration changes to the database
-- `dotnet database drop` - Deletes the entire database and all its tables
+- `dotnet ef database update 0` - Rolls back the migration to start, we can also specify a migrationname to rollback to instead.
+- `dotnet database drop` - Deletes the entire database and all its tables ( full reset )
 
 # Technologies
 - .NET 9

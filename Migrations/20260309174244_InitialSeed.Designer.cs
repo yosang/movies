@@ -10,8 +10,8 @@ using movies.Context;
 namespace movies.Migrations
 {
     [DbContext(typeof(MoviesContext))]
-    [Migration("20260309104137_initialseed")]
-    partial class initialseed
+    [Migration("20260309174244_InitialSeed")]
+    partial class InitialSeed
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -21,7 +21,7 @@ namespace movies.Migrations
                 .HasAnnotation("ProductVersion", "9.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
-            modelBuilder.Entity("movies.Movies.Movie", b =>
+            modelBuilder.Entity("movies.Models.Movie", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()

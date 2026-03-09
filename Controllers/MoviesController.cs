@@ -7,12 +7,10 @@ using movies.Models;
 [Route("[controller]")] // The name of this route is automatically MoviesController without Controller prefix
 public class MoviesController : ControllerBase
 {
-    private readonly MoviesContext _ctx;
+    private readonly MoviesContext _ctx; // Repository for the DbContext
 
-    public MoviesController(MoviesContext context)
-    {
-        _ctx = context;
-    }
+    // Constructor: Sets the repository through dependency injection
+    public MoviesController(MoviesContext context) => _ctx = context;
 
     [HttpGet] // GET - / Get all movies
     public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
@@ -35,14 +33,42 @@ public class MoviesController : ControllerBase
     [HttpPost] // POST / - Creates a new movie
     public async Task<ActionResult<Movie>> AddMovie(Movie movie)
     {
-        _ctx.Add(movie);
+        _ctx.Movies.Add(movie);
         await _ctx.SaveChangesAsync();
         return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, movie);
     }
 
     [HttpPut("{id}")] // PUT - Update a movie, by including the body
-    public void UpdateMovie(int id, Movie updates) { }
+    public async Task<ActionResult<Movie>> UpdateMovie(int id, Movie updates)
+    {
+        if (id != updates.Id) return BadRequest();
+
+        var movie = await _ctx.Movies.FindAsync(id);
+
+        if (movie == null) return NotFound();
+
+        // Entry gives direct access to an already tracked entity
+        // Which allows us to modify its current values and replace only those that differ with SetValues (copies values from an object)
+        _ctx.Entry(movie).CurrentValues.SetValues(updates);
+
+        // We dont need to check if the state is modified to save changes, it happens automtically if there are changes, however its nice to debug
+        if (_ctx.Entry(movie).State == EntityState.Modified) Console.WriteLine("Movie was updated!"); // For debugging
+
+        await _ctx.SaveChangesAsync();
+
+        return NoContent();
+    }
 
     [HttpDelete("{id}")]
-    public void UpdateMovie(int id) { }
+    public async Task<ActionResult<Movie>> DeleteMovie(int id)
+    {
+        var movie = await _ctx.Movies.FindAsync(id);
+        if (movie == null) return NotFound();
+
+        _ctx.Movies.Remove(movie);
+
+        await _ctx.SaveChangesAsync();
+
+        return NoContent();
+    }
 }

@@ -8,7 +8,7 @@ using MySql.EntityFrameworkCore.Metadata;
 namespace movies.Migrations
 {
     /// <inheritdoc />
-    public partial class initialseed : Migration
+    public partial class InitialSeed : Migration
     {
         /// <inheritdoc />
         protected override void Up(MigrationBuilder migrationBuilder)
