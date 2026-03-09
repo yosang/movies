@@ -12,7 +12,11 @@ public class MoviesController : ControllerBase
     // Constructor: Sets the repository through dependency injection
     public MoviesController(MoviesContext context) => _ctx = context;
 
-    [HttpGet] // GET - / Get all movies
+    /// <summary>
+    /// Gets a list of movies
+    /// </summary>
+    /// <returns>List of movies</returns>
+    [HttpGet]
     public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
     {
         var movies = await _ctx.Movies.ToListAsync();

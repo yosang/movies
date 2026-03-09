@@ -18,6 +18,8 @@
   - [Contructor](#contructor)
   - [AddDbContext](#adddbcontext)
 - [Handling Migrations](#handling-migrations)
+- [Swagger Documentation](#swagger-documentation)
+    - [OpenAPI Documentation](#openapi-documentation)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -39,6 +41,7 @@ The template use for this project is `dotnet new web`, which is a total empty te
 - appsettings.json (for connection string configuration)
 - Dependency Injection (injecting DbContext to the api)
 - Migrations
+- Swagger documenetation
 
 ## Designing a controller
 
@@ -166,6 +169,81 @@ The documentation for Dependency Inject is AspNetCore can be found [here](https:
 - `dotnet database update` - Uploads the migration changes to the database
 - `dotnet ef database update 0` - Rolls back the migration to start, we can also specify a migrationname to rollback to instead.
 - `dotnet database drop` - Deletes the entire database and all its tables ( full reset )
+
+# Swagger Documentation
+As we are using Swagger to documentate our API, there with the `Swashbuckle.AspNetCore` package.
+- `Swagger` - Gives us a set of tools to configure and define the API documentation.
+    - To use it we can add `builder.Services.AddSwaggerGen()` and`app.UseSwagger()` to `Program.cs`.
+        - `SwaggerGen()` will automatically bring in the controller endpoints to swagger.
+- `Swagger UI` - The tools that allows us to visualize our API, it provides us with an endpoint `/swagger`.
+    - To use it we can add `app.UseSwaggerUI()` to `Program.cs`.
+
+## OpenAPI documentation
+OpenAPI is already built in the `AspNetCore` package, so we dont need to add anything extra.
+
+However to further configure our Swagger documentation we can use the `OpenApiInfo` class to give our `SwaggerUI` some context.
+
+```c#
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Movie API",
+        Description = "An ASP.NET Core API to manage CRUD operations on Movies"
+    });
+
+});
+```
+
+## XML Documentation
+Swagger also allows us to provide XML comments from comments directly on the endpoints, this is a handy little feature that allows us to add some context to the endpoints.
+
+To enable XML documentation we first must add this to the `.csproj` file under `<PropertyGroup>`.
+```c#
+    <GenerateDocumentationFile>true</GenerateDocumentationFile> // Generates <project>.xml, which is usually located in obj/Debug/net9.0/movies.xml
+    <NoWarn>$(NoWarn);CS1591</NoWarn> // Shuts up the warning about missing XML comments 
+```
+
+This file is the one responsible for generating documentation out of comments like this
+```c#
+   /// <summary>
+    /// Gets a list of movies
+    /// </summary>
+    /// <returns>List of movies</returns>
+    [HttpGet]
+    public async Task<ActionResult<IEnumerable<Movie>>> GetMovies()
+    {
+        var movies = await _ctx.Movies.ToListAsync();
+        if (movies == null) return NotFound();
+
+        return movies;
+    }
+```
+To allow our application to bring in this `.xml` file to `Swagger` we must point to the path of this file then add that path to `.IncludeXmlComments()` method.
+
+```c#
+builder.Services.AddSwaggerGen(options =>
+{
+    options.SwaggerDoc("v1", new OpenApiInfo
+    {
+        Version = "v1",
+        Title = "Movie API",
+        Description = "An ASP.NET Core API to manage CRUD operations on Movies"
+    });
+
+    // Gets the name of the assembly and adds .xml to it    
+    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"; 
+
+    // Resolves the full path, which is from root of the application and adds the <name>.xml file at the end
+    // My current base directory path is /home/yosang/Downloads/movies/bin/Debug/net9.0/
+    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
+
+    // Adds the full path to the method
+    // /home/yosang/Downloads/movies/bin/Debug/net9.0/movies.xml
+    options.IncludeXmlComments(xmlPath);
+});
+```
 
 # Technologies
 - .NET 9
