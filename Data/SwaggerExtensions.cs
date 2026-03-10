@@ -17,6 +17,9 @@ public static class SwaggerExtensions
                 Description = "An ASP.NET Core API to manage CRUD operations on Movies"
             });
 
+            /* Assuming the following is enabled in .csproj under <PropertyGroup>
+                <GenerateDocumentationFile>true</GenerateDocumentationFile>
+            */
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
 
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
