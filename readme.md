@@ -27,6 +27,8 @@
   - [Return types](#return-types-1)
   - [Remarks](#remarks)
   - [Response codes](#response-codes)
+- [Authentication](#authentication)
+  - [JWT Configuration](#jwt-configuration)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -357,11 +359,118 @@ Adds some context to the different response codes
     /// <response code="200">Returns a single movie</response>
     /// <response code="404">If no movie with the specified id was found</response>
 ```
+
+# Authentication
+
+## JWT Configuration
+We are going to add our configuration settings for JWT in [appsettings.json](#appsettingsjson).
+
+```json
+  "JwtSettings":{
+    "SecretKey": "ALongSecretKeyOfAtLeast40Charactersasasdasdasdasdasdasd1231231231sx12s121",
+    "Issuer": "MyIssuer",
+    "Audience": "MyAudience",
+    "ExpiryMinutes": 60
+  }
+```
+
+So in order to work with these settings, we are going to bind them to a class instance.
+
+This class will match exactly the appsettings key:value pairs.
+```c#
+namespace movies.Auth;
+
+public class JwtSettings
+{
+    public string SecretKey { get; set; } = string.Empty;
+    public string Issuer { get; set; } = string.Empty;
+    public string Audience { get; set; } = string.Empty;
+    public int ExpiryMinutes { get; set; }
+
+}
+```
+
+And to bind it we can do it this way
+- `GetSection` - Gets the values from the specified section.
+- `Get<T>` - Attempts to bind the returned configuration values from `GetSection` to an instance of the specified type.
+
+```c#
+    // Binds the configuration settings from appsettings to the class
+    var jwtSettings = config.GetSection("JwtSettings").Get<JwtSettings>();
+    services.AddSingleton(jwtSettings!);
+```
+
+Further, adding JWT configuration is going to bloat our `Program.cs`, so we are going to introduce a service extension pattern.
+
+Simply we create a new class:
+
+```c#
+namespace movies.Auth;
+
+public static class JwtExtensions
+{
+    public static IServiceCollection AddJwtAuthentication(this IServiceCollection services, IConfiguration config)
+    {
+        // Binds the configuration settings from appsettings to the class
+        var jwtSettings = config.GetSection("JwtSettings").Get<JwtSettings>();
+        services.AddSingleton(jwtSettings!);
+
+        services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
+                .AddJwtBearer(options =>
+                {
+                    options.TokenValidationParameters = new TokenValidationParameters
+                    {
+                        ValidateIssuer = true,
+                        ValidateAudience = true,
+                        ValidateLifetime = true,
+                        ValidateIssuerSigningKey = true,
+                        ValidIssuer = jwtSettings.Issuer,
+                        ValidAudience = jwtSettings.Audience,
+                        IssuerSigningKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(jwtSettings.SecretKey))
+                    };
+                });
+
+        return services;
+    }
+}
+```
+
+Because the method uses `this IServiceCollection services`, it becomes an extension method for `IServiceCollection`, tehnically it just extends the `type`. This allows us to call `builder.Services.AddJwtAuthentication(...)` while keeping the configuration logic in a separate class.
+
+We are also defining the paramter config of type `IConfiguration` so that we can pass `builder.Configuration` into this method.
+
+After logic is implemented we are returning `services`, so that we can allow for more chaining, ultimately our `Program.cs` code will end up like this
+
+```c#
+// Services
+builder.Services.AddDatabase(builder.Configuration) // Database context DI
+                .AddJwtAuthentication(builder.Configuration) // JWT DI
+                .AddAuthorization() // Adds authorization
+                .AddSwaggerDoc() // Swagger documentation generator
+                .AddControllers(); // Finally scans and adds the controller services
+```
+
+To read more about this pattern, checkout this [resource](https://learn.microsoft.com/en-us/aspnet/core/fundamentals/dependency-injection?view=aspnetcore-10.0#register-groups-of-services-with-extension-methods).
+
+This pattern is actually used everywhere in ASP.NET Core application:
+
+```c#
+public static class MvcServiceCollectionExtensions
+{
+    public static IMvcBuilder AddControllers(this IServiceCollection services)
+    {
+        // registers MVC services
+    }
+}
+```
+
 # Technologies
 - .NET 9
 - Microsoft.EntityFrameworkCore
 - Microsoft.EntityFrameworkCore.Design
 - Swashbuckle.AspNetCore
+- Microsoft.AspNetCore.Authentication.JwtBearer
+- System.IdentityModel.Tokens.Jwt
 
 # Usage
 - Clone the repo.

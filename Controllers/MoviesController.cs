@@ -1,4 +1,5 @@
 using System.Collections;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movies.Context;
@@ -60,6 +61,7 @@ public class MoviesController : ControllerBase
     /// <returns>The new movie created</returns>
     [HttpPost] // POST / - Creates a new movie
     [ProducesResponseType(typeof(Movie), StatusCodes.Status201Created)]
+    [Authorize] // Requires authorization through jwt
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<Movie>> AddMovie(Movie movie)
     {

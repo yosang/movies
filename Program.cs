@@ -1,40 +1,23 @@
-using System.Reflection;
-using Microsoft.EntityFrameworkCore;
-using Microsoft.OpenApi.Models;
-using movies.Context;
+using movies.Auth;
+using movies.Database;
+using movies.Swagger;
 
 var builder = WebApplication.CreateBuilder();
 
-// Gets the connection string or throws an exception
-var conString = builder.Configuration.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string is not defined");
+// Services
+builder.Services.AddDatabase(builder.Configuration) // Database context DI
+                .AddJwtAuthentication(builder.Configuration) // JWT DI
+                .AddAuthorization() // Adds authorization
+                .AddSwaggerDoc() // Swagger documentation generator
+                .AddControllers(); // Finally scans and adds the controller services
 
-// Dependency Injection of Database Context
-builder.Services.AddDbContext<MoviesContext>(options => options.UseMySQL(conString));
-
-builder.Services.AddControllers(); // Imports the controllers
-
-// Adds SwaggerGen with OpenApi to define documentation info
-builder.Services.AddSwaggerGen(options =>
-{
-    options.SwaggerDoc("v1", new OpenApiInfo
-    {
-        Version = "v1",
-        Title = "Movie API",
-        Description = "An ASP.NET Core API to manage CRUD operations on Movies"
-    });
-
-    var xmlFile = $"{Assembly.GetExecutingAssembly().GetName().Name}.xml";
-    var xmlPath = Path.Combine(AppContext.BaseDirectory, xmlFile);
-
-    options.IncludeXmlComments(xmlPath);
-});
 
 var app = builder.Build();
 
-app.UseSwagger();
-app.UseSwaggerUI();
-
 app.MapGet("/", () => "Hello world");
-app.MapControllers();
+
+app.UseJwt() // Enables JWT middlewares
+    .UseSwaggerDoc() // Enables Swagger middlewares
+    .MapControllers(); // Maps the controller service endpoints
 
 app.Run();
