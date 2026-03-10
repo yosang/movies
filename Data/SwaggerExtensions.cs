@@ -10,6 +10,7 @@ public static class SwaggerExtensions
     {
         services.AddSwaggerGen(options =>
         {
+            // Uses OpenAPI metadata to generate Swagger documentation
             options.SwaggerDoc("v1", new OpenApiInfo
             {
                 Version = "V1",
@@ -17,11 +18,13 @@ public static class SwaggerExtensions
                 Description = "An ASP.NET Core API to manage CRUD operations on Movies"
             });
 
-            /* Assuming the following is enabled in .csproj under <PropertyGroup>
+            /*  Allows Swagger to pickup Xml comments on controllers
+                Assuming the following is enabled in .csproj under <PropertyGroup>
                 <GenerateDocumentationFile>true</GenerateDocumentationFile>
             */
             options.IncludeXmlComments(Path.Combine(AppContext.BaseDirectory, $"{Assembly.GetExecutingAssembly().GetName().Name}.xml"));
 
+            // Enables Bearer authentication through OpenApi
             options.AddSecurityDefinition("Bearer", new OpenApiSecurityScheme
             {
                 In = ParameterLocation.Header,
@@ -32,6 +35,7 @@ public static class SwaggerExtensions
                 Scheme = "Bearer"
             });
 
+            // Uses the OpenApiSecurityScheme created above for endpoints, the Id is "Bearer"
             options.AddSecurityRequirement(new OpenApiSecurityRequirement
                 {
                     {
@@ -51,6 +55,7 @@ public static class SwaggerExtensions
         return services;
     }
 
+    // Extension method that enables Swagger middlewares
     public static WebApplication UseSwaggerDoc(this WebApplication app)
     {
         app.UseSwagger();
