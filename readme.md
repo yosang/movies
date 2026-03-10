@@ -32,6 +32,8 @@
   - [JWT Controller](#jwt-controller)
   - [User authentication](#user-authentication)
     - [DTOs](#dtos)
+- [CORS](#cors)
+  - [Multiple policies](#multiple-policies)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -574,6 +576,56 @@ public class RegisterRequestDTO
 This protects the API from bad input even before reaching business logic.
 
 In short: **DTO = a clean, simple object for sending or receiving data and validating input**.
+
+# CORS
+Cross-Origin Resource Sharing is a security mechanism provided by the World Wide Web Consortium (W3C) standard.
+
+It defines the level of security when accessing resources from different domains. For example, a client running on port `5003` attempts to access a resource on port `5004`, which is a different domain, will get rejected by `CORS`.
+
+CORS is not configured by default, so we must add a configuration for it.
+
+Once again, Im going to create another extension method to include the configuration logic and feed it to `IServiceCollection`.
+
+```c#
+namespace movies.Cors;
+
+public static class CorsExtensions
+{
+    public static IServiceCollection AddCorsPolicies(this IServiceCollection services)
+    {
+        services.AddCors(options =>
+        {
+            options.AddPolicy("Default", builder =>
+            {
+                builder.AllowAnyOrigin()
+                         .AllowAnyMethod()
+                         .AllowAnyHeader();
+            });
+        });
+
+        return services;
+    }
+}
+```
+
+Then add it to `Program.cs`, the order matters through, Cors policies must come before `MapControllers` or any endpoint that requires `CORS`.
+
+```c#
+var app = builder.Build();
+
+app.MapGet("/", () => "Hello world");
+
+app.UseCors("Default");
+
+app.UseJwt() // Enables JWT middlewares
+    .UseSwaggerDoc() // Enables Swagger middlewares
+    .MapControllers(); // Maps the controller service endpoints
+
+app.Run();
+```
+
+## Multiple policies
+If we want to switch between `Default` and other policies, we can use the attribute `[EnableCors("PolicyName")]` on specific endpoints.
 
 # Technologies
 - .NET 9
