@@ -1,4 +1,3 @@
-using System.Collections;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -77,6 +76,7 @@ public class MoviesController : ControllerBase
     /// <param name="updates"></param>
     /// <returns>No content</returns>
     [HttpPut("{id}")] // PUT - Update a movie, by including the body
+    [Authorize]
     [ProducesResponseType(typeof(Movie), StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -106,6 +106,7 @@ public class MoviesController : ControllerBase
     /// <param name="id"></param>
     /// <returns>No content</returns>
     [HttpDelete("{id}")]
+    [Authorize]
     [ProducesResponseType(typeof(Movie), StatusCodes.Status204NoContent)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<Movie>> DeleteMovie(int id)

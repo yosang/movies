@@ -30,6 +30,8 @@
 - [Authentication](#authentication)
   - [JWT Configuration](#jwt-configuration)
   - [JWT Controller](#jwt-controller)
+  - [User authentication](#user-authentication)
+    - [DTO's](#dtos)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -508,6 +510,53 @@ public class AuthController : ControllerBase
     }
 }
 ```
+
+## User authentication
+Currently our JWT authentication system creates a token for anyone post request sent to `/auth/token`. Ultimately, what we want is to query the database for a real user, check the credentials and only respond with a token if the authentication is valid.
+    - So we are ging to create a `User` model for this in the database with hashed passwords.
+
+Currently our Controller endpoints are querying the database directly, however its common practice to have the controllers talk to the services instead, which then talk to the database. This provides Separation of Concerns, where the controllers only take care of HTTP logic and services handle business logic and data manipulation.
+
+Since this is a learning project, im not going to refactor the architecture, instead just create services for the Login and Registration.
+
+For our `AuthService`, we are going to use the `Micrososft.AspNetCore.Identity` namespace, which provides some useful management of users, passwords, tokens and more [Documentation](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity?view=aspnetcore-10.0).
+
+For our `AuthController` we are going to define a LoginRequestDTO and RegisterRequestDTO
+
+### DTO's
+Data Transfer Objects are classes with the only purpose of carrying data between different layers of the application.
+- They usally just contain properties and no methods.
+- They are usually used for input or output, like for example the data sent in a body from a POST request can be mapped in a DTO, or the data sent back from the API in a response can be mapped in a DTO.
+
+For our `LoginRequestDTO`, we expect the request body to look like this
+
+```c#
+using System.ComponentModel.DataAnnotations;
+
+public class LoginRequestDTO
+{
+    [Required]
+    public string Username { get; set; } = string.Empty;
+
+    [Required]
+    public string Password { get; set; } = string.Empty;
+}
+```
+
+And the API will respond with the following DTO
+
+```c#
+public class LoginResponseDTO
+{
+    public string Token { get; set; } = string.Empty;
+}
+```
+
+Another benefit of using DTO's, is that ASP.NET Core will allow us to validate the request body through DTO attributes (`[Required]`, `[StringLength]`) when using `[ApiController]`. In the `LoginRequestDTO`, we can see that any request body that is missing either or the properties or violates the string length will result in a bad request.
+
+This protects the API from bad input even before reaching business logic.
+
+In short: **DTO = a clean, simple object for sending or receiving data and validating input**.
 
 # Technologies
 - .NET 9

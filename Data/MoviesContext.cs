@@ -6,6 +6,7 @@ namespace movies.Context;
 public class MoviesContext : DbContext
 {
     public DbSet<Movie> Movies { get; set; }
+    public DbSet<User> Users { get; set; }
 
     // We need a constructor when using dependency injection to pass the connection string
     public MoviesContext(DbContextOptions<MoviesContext> options) : base(options) { }
