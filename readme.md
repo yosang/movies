@@ -31,7 +31,7 @@
   - [JWT Configuration](#jwt-configuration)
   - [JWT Controller](#jwt-controller)
   - [User authentication](#user-authentication)
-    - [DTO's](#dtos)
+    - [DTOs](#dtos)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -438,7 +438,7 @@ public static class JwtExtensions
 }
 ```
 
-Because the method uses `this IServiceCollection services`, it becomes an extension method for `IServiceCollection`, tehnically it just extends the `type`. This allows us to call `builder.Services.AddJwtAuthentication(...)` while keeping the configuration logic in a separate class.
+Because the method uses `this IServiceCollection services`, it becomes an extension method for `IServiceCollection`, technically it just extends the `type`. This allows us to call `builder.Services.AddJwtAuthentication(...)` while keeping the configuration logic in a separate class.
 
 We are also defining the paramter config of type `IConfiguration` so that we can pass `builder.Configuration` into this method.
 
@@ -486,7 +486,7 @@ public class AuthController : ControllerBase
     public IActionResult GenerateToken()
     {
         // Array containing claims
-        // Claims a simply pieces of information ahbout the user or entity being authenticated
+        // Claims a simply pieces of information about the user or entity being authenticated
         // Here we are just creating a subject claim with "testuser" and a random unique ID for the JTI (unique identifier to prevent token reuse)
         var claims = new[]
         {
@@ -512,20 +512,20 @@ public class AuthController : ControllerBase
 ```
 
 ## User authentication
-Currently our JWT authentication system creates a token for anyone post request sent to `/auth/token`. Ultimately, what we want is to query the database for a real user, check the credentials and only respond with a token if the authentication is valid.
-    - So we are ging to create a `User` model for this in the database with hashed passwords.
+Instead of retrieving a token by sending a POST request sent to `/auth/token`. Ultimately, we want to verify user credentials against the database and return a token only if authentication succeeds.
+    - So we are going to create a `User` model for this in the database with hashed passwords.
 
-Currently our Controller endpoints are querying the database directly, however its common practice to have the controllers talk to the services instead, which then talk to the database. This provides Separation of Concerns, where the controllers only take care of HTTP logic and services handle business logic and data manipulation.
+Currently, our controller endpoints query the database directly. Best practice is to have controllers communicate with services, which then handle database operations. This separation of concerns keeps controllers focused on HTTP logic while services manage business logic and data manipulation.
 
-Since this is a learning project, im not going to refactor the architecture, instead just create services for the Login and Registration.
+For simplicity in this learning project, I won’t fully refactor the architecture. Instead, I will create services for login and registration while keeping controllers mostly as-is.
 
-For our `AuthService`, we are going to use the `Micrososft.AspNetCore.Identity` namespace, which provides some useful management of users, passwords, tokens and more [Documentation](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity?view=aspnetcore-10.0).
+For our `AuthService`, we are going to use the `Microsoft.AspNetCore.Identity` namespace, which provides some useful management of users, passwords, tokens and more [Documentation](https://learn.microsoft.com/en-us/dotnet/api/microsoft.aspnetcore.identity?view=aspnetcore-10.0). This is the namespace that allows us to access password hashing and validation.
 
-For our `AuthController` we are going to define a LoginRequestDTO and RegisterRequestDTO
+For our `AuthController` we are going to define a `LoginRequestDTO` and `RegisterRequestDTO`
 
-### DTO's
+### DTOs
 Data Transfer Objects are classes with the only purpose of carrying data between different layers of the application.
-- They usally just contain properties and no methods.
+- They usually just contain properties and no methods.
 - They are usually used for input or output, like for example the data sent in a body from a POST request can be mapped in a DTO, or the data sent back from the API in a response can be mapped in a DTO.
 
 For our `LoginRequestDTO`, we expect the request body to look like this
@@ -553,6 +553,23 @@ public class LoginResponseDTO
 ```
 
 Another benefit of using DTO's, is that ASP.NET Core will allow us to validate the request body through DTO attributes (`[Required]`, `[StringLength]`) when using `[ApiController]`. In the `LoginRequestDTO`, we can see that any request body that is missing either or the properties or violates the string length will result in a bad request.
+
+Here is an example from the `RegisterRequestDTO`
+
+```c#
+using System.ComponentModel.DataAnnotations;
+
+public class RegisterRequestDTO
+{
+    [Required]
+    [StringLength(32, MinimumLength = 3)]
+    public string Username { get; set; } = string.Empty;
+
+    [Required]
+    [StringLength(128, MinimumLength = 8)]
+    public string Password { get; set; } = string.Empty;
+}
+```
 
 This protects the API from bad input even before reaching business logic.
 
