@@ -639,6 +639,21 @@ If we want to switch between `Default` and other policies, we can use the attrib
 
 # Usage
 - Clone the repo.
+- Create `appsettings.json` and apply necessary details:
+    ```json
+    {
+    "ConnectionStrings": {
+        "Default": "server=<host>;database=<dbname>;user=<username>;password=<userpassword>"
+    },
+    "JwtSettings": {
+        "SecretKey": "<ReplaceWithAAReallyLongKeyOfAtLesat40Character>",
+        "Issuer": "<MyIssuer>",
+        "Audience": "<MyAudience>",
+        "ExpiryMinutes": 60
+        }
+    }
+    ```
+- Apply migrations with `dotnet ef database update`
 - Run it with `dotnet run`.
 - Visit `/swagger` for the available endpoints. 
 
