@@ -14,11 +14,12 @@
       - [Async/Await](#asyncawait)
   - [Adding Controller service](#adding-controller-service)
 - [appsettings.json](#appsettingsjson)
-- [Dependency Injection (injecting DbContext to the api)](#dependency-injection-injecting-dbcontext-to-the-api)
-  - [Constructor](#constructor)
-  - [AddDbContext](#adddbcontext)
-- [Dependency Injection (injecting DbContext to the controllers)](#dependency-injection-injecting-dbcontext-to-the-controllers)
-  - [Manual dependency injection](#manual-dependency-injection)
+- [Dependency Inject](#dependency-injection)
+    - [Dependency Injection (injecting DbContext to the api)](#dependency-injection-injecting-dbcontext-to-the-api)
+    - [Constructor](#constructor)
+    - [AddDbContext](#adddbcontext)
+    - [Dependency Injection (injecting DbContext to the controllers)](#dependency-injection-injecting-dbcontext-to-the-controllers)
+        - [Manual dependency injection](#manual-dependency-injection)
 - [Handling Migrations](#handling-migrations)
 - [Swagger Documentation](#swagger-documentation)
   - [OpenAPI documentation](#openapi-documentation)
@@ -152,11 +153,12 @@ app.MapControllers();
 
 # appsettings.json
 `appsettings.json` is a configuration file that stores key-value pairs. It allows us to avoid hardcoding, and we can exclude this file entirely from our version control system through `.gitignore`.
+# Dependency Injection
 
-# Dependency Injection (injecting DbContext to the api)
+## Dependency Injection (injecting DbContext to the api)
 Instead of hardcoding the connection string in the `DbContext` class by overriding the `OnConfiguring` method like I have done earlier, we are going to implement `Dependency Injection` to provide the database context to our API and controllers.
 
-## Constructor
+### Constructor
 Since we are no longer hardcoding the connection string, we need to pass the configuration to our `DbContext` class somehow.
 
 We do this by defining a constructor that takes `DbContextOptions<T>` parameter, this parameter carries all configurations set through `Dependency Injection` with the `AddDbContext` method. The documentation for this parameter is found [here](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontextoptions).
@@ -172,7 +174,7 @@ public class MoviesContext : DbContext
 
 This allows **ASP.NET Core DI** to fully configure and provide the context.
 
-## AddDbContext
+### AddDbContext
 Instead of adding configurations to instances of this class by overriding `OnConfiguring`, we add configurations to `DbContextOptions` through `AddDbContext` as its specifically designed for `Dependency Injection`.
 
 This:
@@ -189,7 +191,7 @@ Now, any controller that asks for `MoviesContext` in its constructor will get a 
 
 The documentation for Dependency Inject is AspNetCore can be found [here](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontext-in-dependency-injection-for-aspnet-core).
 
-# Dependency Injection (injecting DbContext to the controllers)
+## Dependency Injection (injecting DbContext to the controllers)
 Once we have injected the `DbContext`, we simply need to make a constructor for each controllers that allow access to the `Context`.
 
 ```c#
@@ -206,7 +208,7 @@ What happens under the hood:
 - It creates a `scoped instance` for this request and injects it.
 - Once the HTTP request ends, the context is disposed automatically.
 
-## Manual dependency injection
+### Manual dependency injection
 We can also configure this manually:
 
 ```c#

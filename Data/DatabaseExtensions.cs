@@ -9,6 +9,8 @@ public static class DatabaseExtensions
     {
         var conString = config.GetConnectionString("Default") ?? throw new InvalidOperationException("Connection string is not defined");
 
+        // Scoped by default
+        // Builds DbContextOptions
         services.AddDbContext<MoviesContext>(options => options.UseMySQL(conString)); // Scoped Lifestime
 
         return services;

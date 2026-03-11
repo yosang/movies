@@ -10,6 +10,8 @@ public static class JwtExtensions
     {
         // Binds the configuration settings from appsettings to the class
         var jwtSettings = config.GetSection("JwtSettings").Get<JwtSettings>();
+
+        // We only need one shared instance of the jwt configuration
         services.AddSingleton(jwtSettings!);
 
         services.AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
