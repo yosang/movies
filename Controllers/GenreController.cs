@@ -23,7 +23,7 @@ public class GenreController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(IEnumerable<Genre>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Genre>>> GetGenres(int page = 1, int pageSize = 2)
+    public async Task<ActionResult<IEnumerable<Genre>>> GetGenres(int page = 1, int pageSize = 5)
     {
         if (!await _ctx.Genres.AnyAsync()) return NotFound();
 
