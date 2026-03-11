@@ -23,11 +23,13 @@ public class GenreController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(IEnumerable<Genre>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Genre>>> GetGenres()
+    public async Task<ActionResult<IEnumerable<Genre>>> GetGenres(int page = 1, int pageSize = 2)
     {
-        if (_ctx.Genres == null) return NotFound();
+        if (!await _ctx.Genres.AnyAsync()) return NotFound();
 
-        return await _ctx.Genres.ToListAsync();
+        int pagination = (page - 1) * pageSize;
+
+        return await _ctx.Genres.Skip(pagination).Take(pageSize).ToListAsync(); ;
     }
 
     /// <summary>
@@ -40,8 +42,6 @@ public class GenreController : ControllerBase
     [ProducesResponseType(typeof(Genre), StatusCodes.Status200OK)]
     public async Task<ActionResult<Genre>> GetGenre(int id)
     {
-        if (_ctx.Genres == null) return NotFound();
-
         var genre = await _ctx.Genres.FindAsync(id);
 
         if (genre == null) return NotFound();
@@ -59,7 +59,6 @@ public class GenreController : ControllerBase
     [ProducesResponseType(typeof(Genre), StatusCodes.Status201Created)]
     public async Task<ActionResult<Genre>> AddGenre([FromBody] GenreDTO genreDTO)
     {
-
         var genre = new Genre { Name = genreDTO.Name };
 
         _ctx.Genres.Add(genre);
