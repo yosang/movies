@@ -10,7 +10,8 @@ public class Movie
     public int StudioId { get; set; }
 
     // Navigation props
-    public Genre? Genre { get; set; }
-    public Studio? Studio { get; set; }
-    public ICollection<MovieActor>? MovieActors { get; set; }
+    public Genre Genre { get; set; } = null!;
+    public Studio Studio { get; set; } = null!;
+
+    public List<MovieActor> MovieActors { get; set; } = new();
 }

@@ -60,33 +60,42 @@ public class MoviesContext : DbContext
         mb.Entity<Genre>()
             .HasData(new List<Genre>()
             {
-               new Genre { Id = 1, Name = "Classic"} ,
-               new Genre { Id = 2, Name = "Romantic"},
-               new Genre { Id = 3, Name = "Animation"}
+                new Genre { Id = 1, Name = "Action" },
+                new Genre { Id = 2, Name = "Drama" },
+                new Genre { Id = 3, Name = "Comedy" },
+                new Genre { Id = 4, Name = "Science Fiction" }
             });
 
         mb.Entity<Studio>()
             .HasData(new List<Studio>()
             {
-                new Studio { Id = 1, Name = "Castle Rock Entertainment"},
-                new Studio { Id = 2, Name = "Baja Studios"},
-                new Studio { Id = 3, Name = "Walt Disney"}
+                new Studio { Id = 1, Name = "Castle Rock Entertainment" },
+                new Studio { Id = 2, Name = "Baja Studios" },
+                new Studio { Id = 3, Name = "Walt Disney" },
+                new Studio { Id = 4, Name = "Metro‑Goldwyn‑Mayer" },
+                new Studio { Id = 5, Name = "Universal Pictures" },
+                new Studio { Id = 6, Name = "Warner Bros" },
+                new Studio { Id = 7, Name = "Paramount Pictures" }
             });
 
         mb.Entity<Movie>()
             .HasData(new List<Movie>  // Seed some data through migrations
             {
-                    new Movie() { Id = 1, Name = "Shawshank Redemption", GenreId = 1, StudioId = 1},
-                    new Movie() { Id = 2, Name = "Titanic", GenreId = 2, StudioId = 2},
-                    new Movie() { Id = 3, Name = "The LionKing", GenreId = 3, StudioId = 3},
+                new Movie() { Id = 1, Name = "Shawshank Redemption", GenreId = 2, StudioId = 1 },
+                new Movie() { Id = 2, Name = "Titanic", GenreId = 2, StudioId = 7 },
+                new Movie() { Id = 3, Name = "The Lion King", GenreId = 3, StudioId = 3 }
             });
 
         mb.Entity<Actor>()
             .HasData(new List<Actor>()
             {
-                new Actor { Id = 1, Name = "Morgan Freeman"},
-                new Actor { Id = 2, Name = "Leonardo Dicaprio"},
-                new Actor { Id = 3, Name = "Rowan Atkinson"}
+                new Actor { Id = 1, Name = "Morgan Freeman" },
+                new Actor { Id = 2, Name = "Leonardo Dicaprio" },
+                new Actor { Id = 3, Name = "Rowan Atkinson" },
+                new Actor { Id = 4, Name = "Scarlett Johansson" },
+                new Actor { Id = 5, Name = "Chris Evans" },
+                new Actor { Id = 6, Name = "Chris Hemsworth" },
+                new Actor { Id = 7, Name = "Robert Downey Jr." }
             });
 
         mb.Entity<MovieActor>()

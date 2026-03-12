@@ -27,7 +27,7 @@ public class ActorController : ControllerBase
     [ProducesResponseType(typeof(IEnumerable<GetActorDTO>), StatusCodes.Status200OK)]
     public async Task<ActionResult<IEnumerable<GetActorDTO>>> GetActor(int page = 1, int pageSize = 5)
     {
-        if (_ctx == null) return NotFound();
+        if (_ctx.Actors == null) return NotFound();
 
         return await _ctx.Actors
                             .OrderBy(e => e.Id)
@@ -46,7 +46,7 @@ public class ActorController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult<GetActorDTO>> GetActor(int id)
     {
-        if (_ctx == null) return NotFound();
+        if (_ctx.Actors == null) return NotFound();
 
         var actor = await _ctx.Actors.Where(e => e.Id == id)
                                         .Select(e => new GetActorDTO { Id = e.Id, Name = e.Name })

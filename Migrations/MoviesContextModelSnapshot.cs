@@ -15,7 +15,7 @@ namespace movies.Migrations
         {
 #pragma warning disable 612, 618
             modelBuilder
-                .HasAnnotation("ProductVersion", "9.0.14")
+                .HasAnnotation("ProductVersion", "9.0.13")
                 .HasAnnotation("Relational:MaxIdentifierLength", 64);
 
             modelBuilder.Entity("movies.Models.Actor", b =>
@@ -47,6 +47,26 @@ namespace movies.Migrations
                         {
                             Id = 3,
                             Name = "Rowan Atkinson"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Scarlett Johansson"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Chris Evans"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Chris Hemsworth"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Robert Downey Jr."
                         });
                 });
 
@@ -68,17 +88,22 @@ namespace movies.Migrations
                         new
                         {
                             Id = 1,
-                            Name = "Classic"
+                            Name = "Action"
                         },
                         new
                         {
                             Id = 2,
-                            Name = "Romantic"
+                            Name = "Drama"
                         },
                         new
                         {
                             Id = 3,
-                            Name = "Animation"
+                            Name = "Comedy"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Science Fiction"
                         });
                 });
 
@@ -110,7 +135,7 @@ namespace movies.Migrations
                         new
                         {
                             Id = 1,
-                            GenreId = 1,
+                            GenreId = 2,
                             Name = "Shawshank Redemption",
                             StudioId = 1
                         },
@@ -119,13 +144,13 @@ namespace movies.Migrations
                             Id = 2,
                             GenreId = 2,
                             Name = "Titanic",
-                            StudioId = 2
+                            StudioId = 7
                         },
                         new
                         {
                             Id = 3,
                             GenreId = 3,
-                            Name = "The LionKing",
+                            Name = "The Lion King",
                             StudioId = 3
                         });
                 });
@@ -191,6 +216,26 @@ namespace movies.Migrations
                         {
                             Id = 3,
                             Name = "Walt Disney"
+                        },
+                        new
+                        {
+                            Id = 4,
+                            Name = "Metro‑Goldwyn‑Mayer"
+                        },
+                        new
+                        {
+                            Id = 5,
+                            Name = "Universal Pictures"
+                        },
+                        new
+                        {
+                            Id = 6,
+                            Name = "Warner Bros"
+                        },
+                        new
+                        {
+                            Id = 7,
+                            Name = "Paramount Pictures"
                         });
                 });
 
