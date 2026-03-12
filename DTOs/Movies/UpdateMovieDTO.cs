@@ -1,7 +1,6 @@
 namespace movies.DTOs;
 
-public class GetGenreDTO
+public class UpdateMovieDTO
 {
-    public int Id { get; set; }
     public string Name { get; set; } = string.Empty;
 }

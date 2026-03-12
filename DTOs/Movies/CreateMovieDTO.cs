@@ -1,5 +1,3 @@
-using movies.Models;
-
 namespace movies.DTOs;
 
 public class CreateMovieDTO

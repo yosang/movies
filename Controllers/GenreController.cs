@@ -24,7 +24,7 @@ public class GenreController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(IEnumerable<GetGenreDTO>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<GetGenreDTO>>> GetGenre(int page = 1, int pageSize = 5)
+    public async Task<ActionResult<IEnumerable<GetGenreDTO>>> GetGenres(int page = 1, int pageSize = 5)
     {
         if (_ctx.Genres == null) return NotFound();
 

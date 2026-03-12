@@ -1,3 +1,4 @@
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movies.Context;
@@ -92,6 +93,7 @@ public class MovieController : ControllerBase
     /// <param name="dto"></param>
     /// <response code="201">Creation successful</response>
     [HttpPost]
+    [Authorize]
     [ProducesResponseType(typeof(GetMovieDTO), StatusCodes.Status201Created)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     public async Task<ActionResult<GetMovieDTO>> CreateMovie(CreateMovieDTO dto)
@@ -109,7 +111,37 @@ public class MovieController : ControllerBase
 
         return CreatedAtAction(nameof(GetMovie), new { id = movie.Id }, new GetMovieDTO { Id = movie.Id, Name = movie.Name });
     }
-    // [HttpPut("{id}")]
 
-    // [HttpDelete("{id}")]
+    /// <summary>
+    /// Update a movie by its id
+    /// </summary>
+    /// <param name="id"></param>
+    /// <param name="dto"></param>
+    /// <response code="200">Update successful</response>
+    /// <response code="404">Unable to find by id</response>
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult> UpdateMovie(int id, UpdateMovieDTO dto)
+    {
+        var movie = await _ctx.Movies.FindAsync(id);
+        if (movie == null) return NotFound();
+
+        movie.Name = dto.Name;
+        await _ctx.SaveChangesAsync();
+
+        return NoContent();
+    }
+
+    [HttpDelete("{id}")]
+    public async Task<ActionResult> DeleteMovie(int id)
+    {
+        var movie = await _ctx.Movies.FindAsync(id);
+        if (movie == null) return NotFound();
+
+        _ctx.Remove(movie);
+        await _ctx.SaveChangesAsync();
+
+        return NoContent();
+    }
 }
