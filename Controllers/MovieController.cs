@@ -34,6 +34,7 @@ public class MovieController : ControllerBase
         return await _ctx.Movies
                                 .OrderBy(m => m.Id)
                                 .Skip((page - 1) * pageSize)
+                                .Take(pageSize)
                                 .Select(m => new GetMovieDTO
                                 {
                                     Id = m.Id,
@@ -124,10 +125,23 @@ public class MovieController : ControllerBase
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     public async Task<ActionResult> UpdateMovie(int id, UpdateMovieDTO dto)
     {
-        var movie = await _ctx.Movies.FindAsync(id);
+        var movie = await _ctx.Movies.Include(e => e.MovieActors).FirstOrDefaultAsync(m => m.Id == id);
         if (movie == null) return NotFound();
 
+        // Always update name, the others are optional
         movie.Name = dto.Name;
+
+        if (dto.GenreId != 0) movie.GenreId = dto.GenreId;
+        if (dto.StudioId != 0) movie.StudioId = dto.StudioId;
+
+        if (dto.Actors.Any() && dto.Actors.FirstOrDefault() != 0)
+        {
+            movie.MovieActors.Clear();
+            movie.MovieActors.AddRange(
+                dto.Actors.Distinct().Select(id => new MovieActor { ActorId = id })
+            );
+        }
+
         await _ctx.SaveChangesAsync();
 
         return NoContent();
