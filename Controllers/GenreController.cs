@@ -2,6 +2,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using movies.Context;
+using movies.DTOs;
 using movies.Models;
 
 [ApiController]
@@ -19,30 +20,36 @@ public class GenreController : ControllerBase
     /// <summary>
     /// Retrieve all genres
     /// </summary>
-    /// <returns></returns>
+    /// <response code="200">Genres retrieved</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(IEnumerable<Genre>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<Genre>>> GetGenres(int page = 1, int pageSize = 5)
+    [ProducesResponseType(typeof(IEnumerable<GetGenreDTO>), StatusCodes.Status200OK)]
+    public async Task<ActionResult<IEnumerable<GetGenreDTO>>> GetGenres(int page = 1, int pageSize = 5)
     {
-        if (!await _ctx.Genres.AnyAsync()) return NotFound();
+        if (_ctx.Genres == null) return NotFound();
 
-        int pagination = (page - 1) * pageSize;
-
-        return await _ctx.Genres.Skip(pagination).Take(pageSize).ToListAsync(); ;
+        return await _ctx.Genres.Skip((page - 1) * pageSize)
+                                .Take(pageSize)
+                                .Select(e => new GetGenreDTO { Id = e.Id, Name = e.Name })
+                                .ToListAsync();
     }
 
     /// <summary>
     /// Get a single genre by its id
     /// </summary>
     /// <param name="id"></param>
-    /// <returns></returns>
+    /// <response code="200">The genre requested</response>
+    /// <response code="404">Unable to find genre with provided ID</response>
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    [ProducesResponseType(typeof(Genre), StatusCodes.Status200OK)]
-    public async Task<ActionResult<Genre>> GetGenre(int id)
+    [ProducesResponseType(typeof(GetGenreDTO), StatusCodes.Status200OK)]
+    public async Task<ActionResult<GetGenreDTO>> GetGenre(int id)
     {
-        var genre = await _ctx.Genres.FindAsync(id);
+        if (_ctx.Genres == null) return NotFound();
+
+        var genre = await _ctx.Genres.Where(e => e.Id == id)
+                                        .Select(e => new GetGenreDTO { Id = e.Id, Name = e.Name })
+                                        .FirstOrDefaultAsync();
 
         if (genre == null) return NotFound();
 
@@ -53,11 +60,13 @@ public class GenreController : ControllerBase
     /// Create a new genre
     /// </summary>
     /// <param name="genreDTO"></param>
-    /// <returns></returns>
+    /// <response code="201">Genre created</response>
+    /// <response code="400">Missing required properties</response>
     [HttpPost]
     [Authorize]
-    [ProducesResponseType(typeof(Genre), StatusCodes.Status201Created)]
-    public async Task<ActionResult<Genre>> AddGenre([FromBody] GenreDTO genreDTO)
+    [ProducesResponseType(typeof(GetGenreDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<GetGenreDTO>> AddGenre(CreateGenreDTO genreDTO)
     {
         var genre = new Genre { Name = genreDTO.Name };
 
@@ -65,7 +74,7 @@ public class GenreController : ControllerBase
 
         await _ctx.SaveChangesAsync();
 
-        return CreatedAtAction(nameof(GetGenre), new { id = genre.Id }, genre);
+        return CreatedAtAction(nameof(GetGenre), new { id = genre.Id }, new GetGenreDTO { Id = genre.Id, Name = genre.Name });
     }
 
     /// <summary>
@@ -73,12 +82,14 @@ public class GenreController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <param name="genreDTO"></param>
-    /// <returns></returns>
+    /// <response code="204">Update successful</response>
+    /// <response code="400">Missing required properties</response>
+    /// <response code="404">Unable to find genre with provided ID</response>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
-    public async Task<ActionResult> UpdateGenre(int id, [FromBody] GenreDTO genreDTO)
+    public async Task<ActionResult> UpdateGenre(int id, UpdateGenreDTO genreDTO)
     {
         var genre = await _ctx.Genres.FindAsync(id);
         if (genre == null) return NotFound();
@@ -94,7 +105,8 @@ public class GenreController : ControllerBase
     /// Removes a genre by its id
     /// </summary>
     /// <param name="id"></param>
-    /// <returns></returns>
+    /// <response code="204">Deletion successful</response>
+    /// <response code="404">Unable to find genre with provided ID</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

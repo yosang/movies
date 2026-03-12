@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-public class StudioDTO
+namespace movies.DTOs;
+
+public class CreateGenreDTO
 {
     [Required]
     [StringLength(100, MinimumLength = 3)]

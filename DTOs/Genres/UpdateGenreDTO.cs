@@ -1,6 +1,8 @@
 using System.ComponentModel.DataAnnotations;
 
-public class GenreDTO
+namespace movies.DTOs;
+
+public class UpdateGenreDTO
 {
     [Required]
     [StringLength(100, MinimumLength = 3)]

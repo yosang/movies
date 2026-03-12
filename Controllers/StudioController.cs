@@ -1,50 +1,82 @@
 using Microsoft.EntityFrameworkCore;
 using Microsoft.AspNetCore.Mvc;
 using movies.Models;
+using movies.Context;
+using Microsoft.AspNetCore.Authorization;
+using movies.DTOs;
 
 [ApiController]
 [Route("[controller]")]
 [Produces("application/json")]
 public class StudioController : ControllerBase
 {
+
+    private readonly MoviesContext _ctx;
+
+    public StudioController(MoviesContext context)
+    {
+        _ctx = context;
+    }
+
     /// <summary>
     /// Retrieve a list of studios
     /// </summary>
     /// <param name="page"></param>
     /// <param name="pageSize"></param>
-    /// <returns></returns>
     [HttpGet]
-    public async Task<ActionResult<IEnumerable<Studio>>> GetStudios(int page = 1, int pageSize = 5)
+    [ProducesResponseType(typeof(IEnumerable<GetStudioDTO>), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<IEnumerable<GetStudioDTO>>> GetStudios(int page = 1, int pageSize = 5)
     {
-        // Add logic
+        if (_ctx.Studios == null) return NotFound();
 
-        return new List<Studio>(); // Placelder - Replace with List of studios
+        // Here we are using the GetStudioDTO to map out the properties we want from the entity
+        return await _ctx.Studios
+                            .Skip((page - 1) * pageSize)
+                            .Take(pageSize)
+                            .Select(s => new GetStudioDTO { Id = s.Id, Name = s.Name })
+                            .ToListAsync();
     }
 
     /// <summary>
     /// Retrieve a studio by its id
     /// </summary>
     /// <param name="id"></param>
-    /// <returns></returns>
     [HttpGet("{id}")]
-    public async Task<ActionResult<Studio>> GetStudio(int id)
+    [ProducesResponseType(typeof(GetStudioDTO), StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<GetStudioDTO>> GetStudio(int id)
     {
-        // Add logic
+        if (_ctx.Studios == null) return NotFound();
 
-        return new Studio(); // Placeholder - Replace with studio entity
+        var studio = await _ctx.Studios.Where(e => e.Id == id)
+                                        .Select(e => new GetStudioDTO { Id = e.Id, Name = e.Name })
+                                        .FirstOrDefaultAsync();
+
+        if (studio == null) return NotFound();
+
+        return studio;
     }
 
     /// <summary>
     /// Create a new studio
     /// </summary>
     /// <param name="studioDTO"></param>
-    /// <returns></returns>
+    /// <response code="201">Returns the newly created studio</response>
+    /// <response code="400">Missing required studio properties</response>
     [HttpPost]
-    public async Task<ActionResult> CreateStudio(StudioDTO studioDTO)
+    [Authorize]
+    [ProducesResponseType(typeof(GetStudioDTO), StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<GetStudioDTO>> CreateStudio(CreateStudioDTO studioDTO)
     {
-        // Add logic
+        var studio = new Studio { Name = studioDTO.Name };
 
-        return Ok(); // Placeholder - replace with CreatedAtAction
+        _ctx.Studios.Add(studio);
+
+        await _ctx.SaveChangesAsync();
+
+        return CreatedAtAction(nameof(GetStudio), new { id = studio.Id }, new GetStudioDTO { Id = studio.Id, Name = studio.Name });
     }
 
     /// <summary>
@@ -54,9 +86,15 @@ public class StudioController : ControllerBase
     /// <param name="studioDTO"></param>
     /// <returns></returns>
     [HttpPut("{id}")]
-    public async Task<ActionResult> UpdateStudio(int id, StudioDTO studioDTO)
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    public async Task<ActionResult> UpdateStudio(int id, UpdateStudioDTO studioDTO)
     {
-        // Add logic
+        var studio = await _ctx.Studios.FindAsync(id);
+        if (studio == null) return NotFound();
+
+        studio.Name = studioDTO.Name;
+
+        await _ctx.SaveChangesAsync();
 
         return NoContent();
     }
@@ -67,9 +105,15 @@ public class StudioController : ControllerBase
     /// <param name="id"></param>
     /// <returns></returns>
     [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteStudio(int id)
     {
-        // Add logic
+        var studio = await _ctx.Studios.FindAsync(id);
+        if (studio == null) return NotFound();
+
+        _ctx.Remove(studio);
+
+        await _ctx.SaveChangesAsync();
 
         return NoContent();
     }
