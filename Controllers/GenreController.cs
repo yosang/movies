@@ -24,11 +24,13 @@ public class GenreController : ControllerBase
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(IEnumerable<GetGenreDTO>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<GetGenreDTO>>> GetGenres(int page = 1, int pageSize = 5)
+    public async Task<ActionResult<IEnumerable<GetGenreDTO>>> GetGenre(int page = 1, int pageSize = 5)
     {
         if (_ctx.Genres == null) return NotFound();
 
-        return await _ctx.Genres.Skip((page - 1) * pageSize)
+        return await _ctx.Genres
+                                .OrderBy(e => e.Id)
+                                .Skip((page - 1) * pageSize)
                                 .Take(pageSize)
                                 .Select(e => new GetGenreDTO { Id = e.Id, Name = e.Name })
                                 .ToListAsync();

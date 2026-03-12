@@ -1,5 +1,7 @@
 using System.ComponentModel.DataAnnotations;
 
+namespace movies.DTOs;
+
 public class LoginRequestDTO
 {
     [Required]

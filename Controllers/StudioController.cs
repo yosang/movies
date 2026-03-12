@@ -27,12 +27,13 @@ public class StudioController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GetStudioDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<GetStudioDTO>>> GetStudios(int page = 1, int pageSize = 5)
+    public async Task<ActionResult<IEnumerable<GetStudioDTO>>> GetStudio(int page = 1, int pageSize = 5)
     {
         if (_ctx.Studios == null) return NotFound();
 
         // Here we are using the GetStudioDTO to map out the properties we want from the entity
         return await _ctx.Studios
+                            .OrderBy(e => e.Id)
                             .Skip((page - 1) * pageSize)
                             .Take(pageSize)
                             .Select(s => new GetStudioDTO { Id = s.Id, Name = s.Name })
