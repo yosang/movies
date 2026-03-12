@@ -20,7 +20,7 @@ public class GenreController : ControllerBase
     /// <summary>
     /// Retrieve all genres
     /// </summary>
-    /// <response code="200">Genres retrieved</response>
+    /// <response code="200">Retrieved all</response>
     [HttpGet]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(IEnumerable<GetGenreDTO>), StatusCodes.Status200OK)]
@@ -38,8 +38,8 @@ public class GenreController : ControllerBase
     /// Get a single genre by its id
     /// </summary>
     /// <param name="id"></param>
-    /// <response code="200">The genre requested</response>
-    /// <response code="404">Unable to find genre with provided ID</response>
+    /// <response code="200">Retrieved by id</response>
+    /// <response code="404">Unable to find by id</response>
     [HttpGet("{id}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(typeof(GetGenreDTO), StatusCodes.Status200OK)]
@@ -60,7 +60,7 @@ public class GenreController : ControllerBase
     /// Create a new genre
     /// </summary>
     /// <param name="genreDTO"></param>
-    /// <response code="201">Genre created</response>
+    /// <response code="201">Creation successful</response>
     /// <response code="400">Missing required properties</response>
     [HttpPost]
     [Authorize]
@@ -84,7 +84,7 @@ public class GenreController : ControllerBase
     /// <param name="genreDTO"></param>
     /// <response code="204">Update successful</response>
     /// <response code="400">Missing required properties</response>
-    /// <response code="404">Unable to find genre with provided ID</response>
+    /// <response code="404">Unable to find by id</response>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -106,7 +106,7 @@ public class GenreController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <response code="204">Deletion successful</response>
-    /// <response code="404">Unable to find genre with provided ID</response>
+    /// <response code="404">Unable to find by id</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
     [ProducesResponseType(StatusCodes.Status204NoContent)]

@@ -23,6 +23,7 @@ public class StudioController : ControllerBase
     /// </summary>
     /// <param name="page"></param>
     /// <param name="pageSize"></param>
+    /// <response code="200">Retrieved all</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GetStudioDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -42,6 +43,8 @@ public class StudioController : ControllerBase
     /// Retrieve a studio by its id
     /// </summary>
     /// <param name="id"></param>
+    /// <response code="200">Retrieved by id</response>
+    /// <response code="404">Unable to find by id</response>
     [HttpGet("{id}")]
     [ProducesResponseType(typeof(GetStudioDTO), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
@@ -62,8 +65,8 @@ public class StudioController : ControllerBase
     /// Create a new studio
     /// </summary>
     /// <param name="studioDTO"></param>
-    /// <response code="201">Returns the newly created studio</response>
-    /// <response code="400">Missing required studio properties</response>
+    /// <response code="201">Creation successful</response>
+    /// <response code="400">Missing required properties</response>
     [HttpPost]
     [Authorize]
     [ProducesResponseType(typeof(GetStudioDTO), StatusCodes.Status201Created)]
@@ -84,7 +87,8 @@ public class StudioController : ControllerBase
     /// </summary>
     /// <param name="id"></param>
     /// <param name="studioDTO"></param>
-    /// <returns></returns>
+    /// <response code="204">Update successful</response>
+    /// <response code="404">Unable to find by id</response>
     [HttpPut("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> UpdateStudio(int id, UpdateStudioDTO studioDTO)
@@ -103,7 +107,8 @@ public class StudioController : ControllerBase
     /// Delete an existing studio by its id
     /// </summary>
     /// <param name="id"></param>
-    /// <returns></returns>
+    /// <response code="204">Delete successful</response>
+    /// <response code="404">Unable to find by id</response>
     [HttpDelete("{id}")]
     [ProducesResponseType(StatusCodes.Status204NoContent)]
     public async Task<ActionResult> DeleteStudio(int id)

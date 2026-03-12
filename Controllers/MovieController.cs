@@ -7,12 +7,12 @@ using movies.Models;
 [ApiController] // Marks this class as a controller
 [Route("[controller]")] // The name of this route is automatically MoviesController without Controller prefix
 [Produces("application/json")]
-public class MoviesController : ControllerBase
+public class MovieController : ControllerBase
 {
     private readonly MoviesContext _ctx; // Repository for the DbContext
 
     // Constructor: Sets the repository through dependency injection
-    public MoviesController(MoviesContext context) => _ctx = context;
+    public MovieController(MoviesContext context) => _ctx = context;
 
     /// <summary>
     /// Gets a list of movies
