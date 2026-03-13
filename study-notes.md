@@ -1,5 +1,4 @@
-- [Project](#project)
-  - [Resources](#resources)
+- [Resources](#resources)
 - [Template](#template)
 - [Concepts](#concepts)
   - [Designing a controller](#designing-a-controller)
@@ -39,10 +38,7 @@
 - [Usage](#usage)
 - [Author](#author)
 
-# Project
-In this little project we are implementing a ASP.NET Core Web Api with Controllers and connecting it to a minimalistic MySQL database to perform simple CRUD operations.
-
-## Resources
+# Resources
 - [Basics](https://learn.microsoft.com/en-us/aspnet/core/web-api/?view=aspnetcore-10.0)
 - [Return types](https://learn.microsoft.com/en-us/aspnet/core/web-api/action-return-types?view=aspnetcore-10.0)
 - [AddDbContext](https://learn.microsoft.com/en-us/ef/core/dbcontext-configuration/#dbcontextoptions)

@@ -1,13 +1,10 @@
-using System.Text;
+using System.Reflection;
 using movies.Auth;
 using movies.Cors;
 using movies.Database;
 using movies.Swagger;
 
 var builder = WebApplication.CreateBuilder();
-
-// var secretkey = builder.Configuration.GetRequiredSection("JwtSettings").GetValue<string>("SecretKey");
-// Console.WriteLine(Encoding.UTF8.GetBytes(secretkey!).Length); // 73 charact
 
 // Services
 builder.Services.AddDatabase(builder.Configuration) // Database context DI
@@ -17,7 +14,6 @@ builder.Services.AddDatabase(builder.Configuration) // Database context DI
                 .AddScoped<AuthService>() // Creates one instance of AuthService per request (Dependency Injection)
                 .AddCorsPolicies()
                 .AddControllers(); // Finally scans and adds the controller services
-
 
 var app = builder.Build();
 

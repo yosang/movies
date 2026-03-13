@@ -5,11 +5,11 @@ namespace movies.Auth;
 
 public class JwtSettings
 {
-    // Properties configured with private set can still be modified by a configuration binder.
-    public string SecretKey { get; private set; } = string.Empty;
-    public string Issuer { get; private set; } = string.Empty;
-    public string Audience { get; private set; } = string.Empty;
-    public int ExpiryMinutes { get; private set; }
+    // Properties configured can only be set once initiated, which makes this instance immutable and readonly
+    public string SecretKey { get; init; } = string.Empty;
+    public string Issuer { get; init; } = string.Empty;
+    public string Audience { get; init; } = string.Empty;
+    public int ExpiryMinutes { get; init; }
 
     // Custom Getter property that returns a new symmetric security key
     // This executes everytime we access this property 
