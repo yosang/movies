@@ -18,7 +18,7 @@ public static class JwtExtensions
         return services;
     }
 
-    public static WebApplication UseJwt(this WebApplication app)
+    public static WebApplication UseAuthMiddlewares(this WebApplication app)
     {
         app.UseAuthentication();
         app.UseAuthorization();

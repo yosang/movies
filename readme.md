@@ -1,6 +1,7 @@
 - [Project](#project)
 - [Concepts](#concepts)
 - [Dependency Injection](#dependency-injection)
+- [JWT Settings](#jwt-settings)
 - [Technologies](#technologies)
 - [Usage](#usage)
 - [Author](#author)
@@ -14,6 +15,15 @@ In this little project we are implementing a ASP.NET Core Web Api with Controlle
     - [The constructor](#the-constructor)
     - [Injection](#injection)
     - [Program.cs](#programcs)
+  - [JWT Settings](#jwt-settings)
+    - [Basic properties](#basic-properties)
+    - [SymmetricSecurityKey](#symmetricsecuritykey)
+    - [TokenValidationParameters](#tokenvalidationparameters)
+    - [Extension method](#extension-method)
+    - [Program.cs](#programcs-1)
+    - [Behind the scenes](#behind-the-scenes)
+    - [Authentication](#authentication)
+    - [Authorization](#authorization)
 
 # Dependency Injection
 
@@ -115,7 +125,7 @@ We have defined a custom getter that takes the `SecretKey` and returns a `Symmet
 ### TokenValidationParameters
 The TokenValidationParemeters are used upon configuration of the `JWTBearer` options. Here we are defining what validations should be made to the tokens received/created.
 
-## Extension method
+### Extension method
 The extension method is designed to retrieve the `JwtSettings` section from `appsettings.json` and bind matching properties with the ones of our `jwtSettings` class.
 
 Later we are adding this class to `Dependency Injection` as a singleton, which means its lifestime will last for as long as the application is running and is shared among whoever requests/uses it. It makes sense to use this class as a singleton because the settings will never change during runtime, they are set once and are mostly meant for reading, although its considered good practice to rotate security keys every now and then.
@@ -137,7 +147,7 @@ public static class JwtExtensions
         return services;
     }
 
-    public static WebApplication UseJwt(this WebApplication app)
+    public static WebApplication UseAuthMiddlewares(this WebApplication app)
     {
         app.UseAuthentication();
         app.UseAuthorization();
@@ -146,16 +156,23 @@ public static class JwtExtensions
 }
 ```
 
-After configuring JWT, we apply `AddAuthorization` policies to the services, when for example using `[Authorize]` on controllers.
+After configuring JWT, we apply `AddAuthorization` policies to the services, which we will need when for example using `[Authorize]` on controllers.
 
-The `UseJwt` static method enables `Authentication` and `Authorization`, these are part of the `Microsoft.AspNetCore` namespace and not the `JWT` package.
+The `UseAuthMiddlewares` static method enables `Authentication` and `Authorization`, these are part of the `Microsoft.AspNetCore` namespace and not the `JWT` package. The order matters though, authentication should always come before authorization.
 
 Obviously we could add more options here, like `RequireHttpsMetadata` which enforces `HTTPS` for production, but since this is a minimal practice app, im not bothering with bloated configurations.
 
-## Program.cs
-Finally we just add the extension method to `Program.cs`, the order matters though, authentication should always come before authorization.
+### Program.cs
+Finally we just add the extension method to `Program.cs` along with the middlewares.
 
-## Behind the scenes
+```c#
+builder.Services.AddDatabase(builder.Configuration) // Database context DI
+                .AddJwtAuthentication(builder.Configuration) // JWT DI
+
+app.UseAuthMiddlewares() // Enables Auth/Authorization middlewares
+```
+
+### Behind the scenes
 There is a lot of moving parts here, so it can be confusing as of what `Authentication` and what `Authorization` is, to add context:
 
 ### Authentication
@@ -165,11 +182,6 @@ The services `AddAuthentication`, `AddJwtBearer` and `UseAuthentication` are res
 The services `AddAuthorization` and `UseAuthorization` are responsible for giving access to the right user asking for it. In this application there is no `RBA` policies as im just using the `[Authorize]` attribute, however these services provide default policies, which are required in order to be able to use that attribute at all.
 
 If I wanted to add `RBA`, such as `[Authorize(Roles = "Admin")]`, we wont need to configure much on the domain layer.
-
-```c#
-builder.Services.AddDatabase(builder.Configuration) // Database context DI
-                .AddJwtAuthentication(builder.Configuration) // JWT DI
-```
 
 # Technologies
 - .NET 9

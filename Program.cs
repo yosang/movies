@@ -20,7 +20,7 @@ app.MapGet("/", () => "Hello world");
 
 app.UseCors("Default");
 
-app.UseJwt() // Enables JWT middlewares
+app.UseAuthMiddlewares() // Enables Auth/Authorization middlewares
     .UseSwaggerDoc() // Enables Swagger middlewares
     .MapControllers(); // Maps the controller service endpoints
 
