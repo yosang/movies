@@ -4,7 +4,6 @@ using movies.Context;
 using movies.Models;
 using System.Security.Claims;
 using Microsoft.IdentityModel.Tokens;
-using Microsoft.AspNetCore.Mvc;
 using System.IdentityModel.Tokens.Jwt;
 
 using System.Text;
@@ -24,7 +23,7 @@ public class AuthService
 
     public async Task<bool> ValidateUser(string username, string password)
     {
-        var user = await GetUserBytUserName(username);
+        var user = await GetUserByUsername(username);
         if (user == null) return false;
 
         // Creates an instance of PasswordHasher and Compares two hashed passwords
@@ -50,30 +49,22 @@ public class AuthService
         return true;
     }
 
-    public async Task<User?> GetUserBytUserName(string username) => await _ctx.Users.SingleOrDefaultAsync(e => e.Username == username);
+    public async Task<User?> GetUserByUsername(string username) => await _ctx.Users.SingleOrDefaultAsync(e => e.Username == username);
     public async Task<bool> CheckIfUserExists(string username) => await _ctx.Users.AnyAsync(e => e.Username == username);
 
     public string GenerateToken(User user)
     {
-        // Array containing claims
-        // Claims a simply pieces of information ahbout the user or entity being authenticated
-        // Here we are just creating a subject claim with "testuser" and a random unique ID for the JTI (unique identifier to prevent token reuse)
-        var claims = new[]
-        {
-            new Claim(JwtRegisteredClaimNames.Sub, user.Username),
-            new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
-        };
-
-        var key = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(_jwt.SecretKey)); // Instance of secretKey wrapped in a SysmetricSecurityKey (can be used for both signing and verification)
-        var creds = new SigningCredentials(key, SecurityAlgorithms.HmacSha256); // Instance of credentials using key and an algorithm
-
         // The token creation
         var token = new JwtSecurityToken(
-            issuer: _jwt.Issuer, // Who is issuing the token (defined in appsettings.json)
-            audience: _jwt.Audience, // Who is the token intended for (defined in appsettings.json)
-            claims: claims, // specific user information (claims)
-            expires: DateTime.Now.AddMinutes(_jwt.ExpiryMinutes), // Token expiration
-            signingCredentials: creds // The signature for the token
+            issuer: _jwt.Issuer,
+            audience: _jwt.Audience,
+            claims: new List<Claim> // Claims a simply pieces of information ahbout the user or entity being authenticated
+                    {
+                        new Claim(JwtRegisteredClaimNames.Sub, user.Username),
+                        new Claim(JwtRegisteredClaimNames.Jti, Guid.NewGuid().ToString())
+                    },
+            expires: DateTime.UtcNow.AddMinutes(_jwt.ExpiryMinutes), // Token expiration, current time + 60 min
+            signingCredentials: new SigningCredentials(_jwt.SecurityKey, SecurityAlgorithms.HmacSha256) // The signature for the token
         );
 
         return new JwtSecurityTokenHandler().WriteToken(token); // Token serialization (a JWT string that the client receives)

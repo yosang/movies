@@ -28,7 +28,7 @@ public class AuthController : ControllerBase
 
         if (!validLogin) return Unauthorized("Invalid credentials");
 
-        var user = await _authService.GetUserBytUserName(request.Username);
+        var user = await _authService.GetUserByUsername(request.Username);
 
         return Ok(new LoginResponseDTO { Token = _authService.GenerateToken(user!) });
     }
