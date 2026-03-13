@@ -27,7 +27,7 @@ public class StudioController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GetStudioDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<GetStudioDTO>>> GetStudio(int page = 1, int pageSize = 5)
+    public async Task<ActionResult<IEnumerable<GetStudioDTO>>> GetStudio(int page = 1, int pageSize = 2)
     {
         if (_ctx.Studios == null) return NotFound();
 

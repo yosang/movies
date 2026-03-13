@@ -25,7 +25,7 @@ public class ActorController : ControllerBase
     /// <response code="200">Retrieved</response>
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GetActorDTO>), StatusCodes.Status200OK)]
-    public async Task<ActionResult<IEnumerable<GetActorDTO>>> GetActor(int page = 1, int pageSize = 5)
+    public async Task<ActionResult<IEnumerable<GetActorDTO>>> GetActor(int page = 1, int pageSize = 2)
     {
         if (_ctx.Actors == null) return NotFound();
 

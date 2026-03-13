@@ -27,7 +27,7 @@ public class MovieController : ControllerBase
     [HttpGet]
     [ProducesResponseType(typeof(IEnumerable<GetMovieDTO>), StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<IEnumerable<GetMovieDTO>>> GetMovie(int page = 1, int pageSize = 5)
+    public async Task<ActionResult<IEnumerable<GetMovieDTO>>> GetMovie(int page = 1, int pageSize = 2)
     {
         if (_ctx.Movies == null) return NotFound();
 
