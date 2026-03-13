@@ -14,4 +14,5 @@ public class Movie
     public Studio Studio { get; set; } = null!;
 
     public List<MovieActor> MovieActors { get; set; } = new();
+    public List<Review> Reviews { get; set; } = new();
 }

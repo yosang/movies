@@ -11,6 +11,7 @@ public class MoviesContext : DbContext
     public DbSet<User> Users { get; set; }
     public DbSet<Actor> Actors { get; set; }
     public DbSet<MovieActor> MovieActors { get; set; }
+    public DbSet<Review> Reviews { get; set; }
 
     // We need a constructor when using dependency injection to pass the connection string
     public MoviesContext(DbContextOptions<MoviesContext> options) : base(options) { }
@@ -43,6 +44,13 @@ public class MoviesContext : DbContext
             .HasOne(e => e.Studio)
             .WithMany(e => e.Movies)
             .HasForeignKey(e => e.StudioId)
+            .OnDelete(DeleteBehavior.NoAction);
+
+        // One-To-Many: Review - Movies
+        mb.Entity<Review>()
+            .HasOne(e => e.Movie)
+            .WithMany(e => e.Reviews)
+            .HasForeignKey(e => e.MovieId)
             .OnDelete(DeleteBehavior.NoAction);
 
         // Many-To-Many: Movie - MovieActors - Actors
@@ -104,6 +112,14 @@ public class MoviesContext : DbContext
                new MovieActor { MovieId = 1, ActorId = 1},
                new MovieActor { MovieId = 2, ActorId = 2},
                new MovieActor { MovieId = 3, ActorId = 3}
+            });
+
+        mb.Entity<Review>()
+            .HasData(new List<Review>()
+            {
+                new Review { Id = 1, Comment = "I loved Morgan Freeman!", Rating = 5, MovieId = 1},
+                new Review { Id = 2, Comment = "What an amazing movie", Rating = 5, MovieId = 1},
+                new Review { Id = 3, Comment = "I cried", Rating = 5, MovieId = 2}
             });
     }
 }
