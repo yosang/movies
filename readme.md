@@ -24,7 +24,6 @@ Here is a little snippet of `Program.cs`
 ```c#
     public static void Main()
     {
-        // Initializing BookService through Dependency Injection
         var service = new BookService(new BookContext());
 
         var categoryBooksCounts = service.categoryBooksCounts();
