@@ -12,7 +12,8 @@ public class JwtSettings
     public int ExpiryMinutes { get; private set; }
 
     // Custom Getter property that returns a new symmetric security key
-    // This executes everytime we access this property
+    // This executes everytime we access this property 
+    // This SymetricSecurityKey type (wrapper) is simply as a container of bytes that a cryptographic mechanism can work with
     public SymmetricSecurityKey SecurityKey
     {
         get { return new SymmetricSecurityKey(Encoding.UTF8.GetBytes(SecretKey)); }
@@ -21,12 +22,12 @@ public class JwtSettings
     // Another custom getter, but written with a lambda property, which is perfect for a read only property.
     public TokenValidationParameters TokenValidationParameters => new TokenValidationParameters
     {
-        ValidateIssuer = true,
-        ValidateAudience = true,
-        ValidateLifetime = true,
-        ValidateIssuerSigningKey = true,
-        ValidIssuer = Issuer,
-        ValidAudience = Audience,
-        IssuerSigningKey = SecurityKey
+        ValidateIssuer = true, // Checks that the issuer on the token mat ches the one defined in settings, prevents tokens issued by other services
+        ValidateAudience = true, // Same purpose as ValidateIssuer, prevents a token ment for one audience to be used by another, useful for specific consumers, not necessery for an open API
+        ValidateLifetime = true, // Checks that the token has not expired and is still valid
+        ValidateIssuerSigningKey = true, // Validates the JWT signature which is the IssuerSigningKey
+        ValidIssuer = Issuer, // Used in conjuction with ValidateIssuer
+        ValidAudience = Audience, // Used in conjuction with ValidateAudience
+        IssuerSigningKey = SecurityKey // Assigns the IssuerSigningKey, which is a symmetric key (HMAC) wrapper of secretkey
     };
 }
