@@ -13,6 +13,8 @@ public static class JwtExtensions
                 .AddAuthentication(JwtBearerDefaults.AuthenticationScheme)
                 .AddJwtBearer(options => options.TokenValidationParameters = jwtSettings.TokenValidationParameters);
 
+        services.AddAuthorization();
+
         return services;
     }
 

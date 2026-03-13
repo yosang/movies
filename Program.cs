@@ -9,7 +9,6 @@ var builder = WebApplication.CreateBuilder();
 // Services
 builder.Services.AddDatabase(builder.Configuration) // Database context DI
                 .AddJwtAuthentication(builder.Configuration) // JWT DI
-                .AddAuthorization() // Adds authorization
                 .AddSwaggerDoc() // Swagger documentation generator
                 .AddScoped<AuthService>() // Creates one instance of AuthService per request (Dependency Injection)
                 .AddCorsPolicies()
